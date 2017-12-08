@@ -1,0 +1,186 @@
+SELECT   /*visit level*/
+  date,
+  fullVisitorId,
+  visit,
+  Time_on_site,
+  device_type,
+
+
+  CASE                                                /*update ticket number AND groups IN your experiments*/
+     WHEN max(group) LIKE '%%aur3848-hp_a%%' THEN 'a'
+     WHEN max(group) LIKE '%%aur3848-hp_b%%' THEN 'b'    
+     ELSE 'NONE'
+  END abgroup,
+
+  CASE 
+    WHEN unique(appID) IS NOT NULL THEN 1
+    WHEN unique(appID) IS NULL THEN 0
+    ELSE NULL
+  END is_app,
+
+  CASE 
+    WHEN max(OS) = 'Android' THEN 'Android'
+    WHEN max(OS) = 'iOS' THEN 'iOS'
+    WHEN max(OS) = 'Windows' THEN 'Windows'
+    WHEN max(OS) = 'Macintosh' THEN 'Mac'
+    ELSE 'Other'
+  END OS,
+
+  CASE 
+    WHEN max(OS) = 'Android' AND unique(appID) IS NOT NULL AND max(appVersion) IN ('8.3.1', '8.4.0', '8.5.0', '8.5.1', '8.5.2', '8.6.0', '8.6.2', '8.7.0') THEN 'updated'         /*Update this line WHEN querying Android experiment*/
+    WHEN max(OS) = 'iOS' AND unique(appID) IS NOT NULL AND REGEXP_MATCH(max(appVersion), r'(^[6]\W[1][1]|^[7]\W|^[8]\W)') THEN 'updated'   /*Update this line WHEN querying iOS experiment*/
+    When unique(appID) IS NULL THEN 'web'
+    ELSE 'not_updated'
+  END updated_version,
+
+  max(appVersion) AS appVersion,
+
+  sum(View) AS View,
+  sum(SRP) AS SRP,
+  sum(SRP_Search) AS SRP_Search,
+  sum(SRP_Browse) AS SRP_Browse,
+  sum(L1Page) AS L1Page, 
+
+  sum(VIP) AS VIP,
+  sum(if(VIP > 0 AND Admarkt > 0 , 1, 0)) AS VIP_Admarkt,
+  sum(if(VIP > 0 AND Regular > 0 , 1, 0)) AS VIP_Regular,
+  sum(if(VIP > 0 AND Admarkt > 0 AND CAR > 0 , 1, 0)) AS VIP_Admarkt_CAR,
+  sum(if(VIP > 0 AND Regular > 0 AND CAR > 0 , 1, 0)) AS VIP_Regular_CAR,  
+  sum(if(VIP > 0 AND Admarkt > 0 AND NON_CAR > 0 , 1, 0)) AS VIP_Admarkt_NON_CAR,
+  sum(if(VIP > 0 AND Regular > 0 AND NON_CAR > 0 , 1, 0)) AS VIP_Regular_NON_CAR,
+  sum(if(VIP > 0 AND Admarkt > 0 AND JOB > 0 , 1, 0)) AS VIP_Admarkt_JOB,
+  sum(if(VIP > 0 AND Regular > 0 AND JOB > 0 , 1, 0)) AS VIP_Regular_JOB,  
+  sum(if(VIP > 0 AND Admarkt > 0 AND NON_JOB > 0 , 1, 0)) AS VIP_Admarkt_NON_JOB,
+  sum(if(VIP > 0 AND Regular > 0 AND NON_JOB > 0 , 1, 0)) AS VIP_Regular_NON_JOB, 
+
+  sum(URL) AS URL,
+  sum(URL_VIP) AS URL_VIP,
+  sum(URL_VipDescription) AS URL_VipDescription,
+  sum(URL_LR) AS URL_LR,
+  sum(URL_SOI) AS URL_SOI,
+  sum(URL_HP) AS URL_HP,
+
+  sum(ASQ) + sum(BID) + sum(CHAT) + sum(PhoneCall) + sum(SMS) AS Lead,
+  sum(ASQ) + sum(BID) + sum(CHAT) + sum(PhoneCall) + sum(SMS) + sum(URL) AS Lead_w_url,
+  sum(ASQ) AS ASQ,
+  sum(BID) AS BID,
+  sum(CHAT) AS CHAT,
+  sum(PhoneCall) AS PhoneCall,
+  sum(SMS) AS SMS,  
+  sum(if(ASQ>0 AND Admarkt>0 , 1, 0)) AS ASQ_Admarkt,
+  sum(if(BID>0 AND Admarkt>0 , 1, 0)) AS BID_Admarkt,
+  sum(if(CHAT>0 AND Admarkt>0 , 1, 0)) AS CHAT_Admarkt,
+  sum(if(PhoneCall>0 AND Admarkt>0 , 1, 0)) AS PhoneCall_Admarkt,
+  sum(if(SMS>0 AND Admarkt>0 , 1, 0)) AS SMS_Admarkt,
+  sum(if(ASQ>0 AND Regular>0 , 1, 0)) AS ASQ_Regular,
+  sum(if(BID>0 AND Regular>0 , 1, 0)) AS BID_Regular,
+  sum(if(CHAT>0 AND Regular>0 , 1, 0)) AS CHAT_Regular,
+  sum(if(PhoneCall>0 AND Regular>0 , 1, 0)) AS PhoneCall_Regular,
+  sum(if(SMS>0 AND Regular>0 , 1, 0)) AS SMS_Regular,      
+  sum(if(ASQ>0 AND CAR>0, 1, 0)) AS ASQ_CAR,
+  sum(if(BID>0 AND CAR>0, 1, 0)) AS BID_CAR,
+  sum(if(CHAT>0 AND CAR>0, 1, 0)) AS CHAT_CAR,
+  sum(if(PhoneCall>0 AND CAR>0, 1, 0)) AS PhoneCall_CAR,
+  sum(if(SMS>0 AND CAR>0, 1, 0)) AS SMS_CAR,   
+
+  sum(if(ASQ>0 AND JOB>0, 1, 0)) AS ASQ_JOB,
+  sum(if(BID>0 AND JOB>0, 1, 0)) AS BID_JOB,
+  sum(if(CHAT>0 AND JOB>0, 1, 0)) AS CHAT_JOB,
+  sum(if(PhoneCall>0 AND JOB>0, 1, 0)) AS PhoneCall_JOB,
+  sum(if(SMS>0 AND JOB>0, 1, 0)) AS SMS_JOB,
+
+  sum(Filter) AS Filter,
+  sum(Homepage) AS Homepage,
+  sum(API_AD) AS api_ad,
+  sum(ZSRP) AS ZSRP
+
+
+FROM (
+
+    SELECT   /*Hit level: */
+        
+        date, 
+        fullVisitorId,
+        CONCAT(fullVisitorId, '_', STRING(visitNumber)) AS visit,
+        device.deviceCategory AS device_type, 
+        device.operatingSystem AS OS,
+        hits.hitNumber,
+        hits.type,
+        hits.eventInfo.eventCategory,
+        hits.eventInfo.eventAction,
+        hits.eventInfo.eventLabel,
+        hits.appInfo.appVersion AS appVersion,
+        hits.appInfo.id AS appId,
+        totals.timeOnSite AS Time_on_site,
+        
+        /* GROUP BY until here */
+        
+        max(IF( hits.customDimensions.index = 25, hits.customDimensions.value, NULL)) AS group,
+        max(IF(hits.type IN ('PAGE', 'APPVIEW'), 1, 0)) AS View,
+
+        /* Meridian definitions */
+
+        max(IF(hits.type IN ('PAGE', 'APPVIEW') AND (hits.customDimensions.index = 1 AND hits.customDimensions.value = 'VIP'), 1, 0)) AS VIP,
+        max(IF(hits.type IN ('PAGE', 'APPVIEW') AND (hits.customDimensions.index = 1 AND hits.customDimensions.value IN ('L1Page', 'LandingPageCategory')), 1, 0)) AS L1Page,
+        max(IF(hits.type IN ('PAGE', 'APPVIEW') AND (hits.customDimensions.index = 1 AND hits.customDimensions.value IN ('ResultsSeller','ResultsSearch','ResultsBrowse')), 1, 0)) AS SRP,
+        max(IF(hits.type IN ('PAGE', 'APPVIEW') AND (hits.customDimensions.index = 1 AND hits.customDimensions.value = 'ResultsSearch'), 1, 0)) AS SRP_Search,  
+        max(IF(hits.type IN ('PAGE', 'APPVIEW') AND (hits.customDimensions.index = 1 AND hits.customDimensions.value = 'ResultsBrowse'), 1, 0)) AS SRP_Browse,  
+        max(IF(hits.type IN ('PAGE', 'APPVIEW') AND (hits.customDimensions.index = 1 AND hits.customDimensions.value = 'Homepage'), 1, 0)) AS Homepage,
+        
+        max(IF(hits.type = 'EVENT' AND hits.eventInfo.eventCategory IN ('VIP', 'VipDescription') AND hits.eventInfo.eventAction = 'R2SEmailSuccess', 1, 0)) AS ASQ,
+        max(IF(hits.type = 'EVENT' AND hits.eventInfo.eventCategory IN ('VIP', 'VipDescription') AND hits.eventInfo.eventAction = 'R2SBidSuccess'  , 1, 0)) AS BID,
+        max(IF(hits.type = 'EVENT' AND hits.eventInfo.eventCategory IN ('VIP', 'VipDescription') AND hits.eventInfo.eventAction = 'R2SChatSuccess' , 1, 0)) AS CHAT,
+        max(IF(hits.type = 'EVENT' AND hits.eventInfo.eventCategory IN ('VIP', 'VipDescription') AND hits.eventInfo.eventAction = 'R2SPhoneBegin'  , 1, 0)) AS PhoneCall,
+        max(IF(hits.type = 'EVENT' AND hits.eventInfo.eventCategory IN ('VIP', 'VipDescription') AND hits.eventInfo.eventAction = 'R2SSMSBegin'    , 1, 0)) AS SMS,
+              
+        max(IF(hits.type = 'EVENT' AND (hits.eventInfo.eventCategory IN ('VIP', 'VipDescription', 'ResultsSearch', 'ResultsBrowse', 'ResultsSeller', 'HP')) AND (hits.eventInfo.eventAction IN ('Website', 'R2SExternalBegin')), 1, 0)) AS URL,
+        max(IF(hits.type = 'EVENT' AND hits.eventInfo.eventCategory = 'VIP' AND hits.eventInfo.eventAction IN ('Website', 'R2SExternalBegin'), 1, 0)) AS URL_VIP,          
+        max(IF(hits.type = 'EVENT' AND hits.eventInfo.eventCategory = 'VipDescription' AND hits.eventInfo.eventAction IN ('Website', 'R2SExternalBegin'), 1, 0)) AS URL_VipDescription,        
+        max(IF(hits.type = 'EVENT' AND hits.eventInfo.eventCategory IN ('LR', 'ResultsSearch', 'ResultsBrowse') AND hits.eventInfo.eventAction IN ('Website', 'R2SExternalBegin'), 1, 0)) AS URL_LR,          
+        max(IF(hits.type = 'EVENT' AND hits.eventInfo.eventCategory = 'ResultsSeller' AND hits.eventInfo.eventAction IN ('Website', 'R2SExternalBegin'), 1, 0)) AS URL_SOI,
+        max(IF(hits.type = 'EVENT' AND hits.eventInfo.eventCategory = 'HP' AND (hits.eventInfo.eventAction IN ('Website', 'R2SExternalBegin')), 1, 0)) AS URL_HP,             
+          
+        max(IF(hits.customDimensions.index = 30 AND hits.customDimensions.value LIKE 'a%%', 1, 0)) AS Admarkt, 
+        max(IF(hits.customDimensions.index = 30 AND hits.customDimensions.value LIKE 'm%%', 1, 0)) AS Regular,  /*This can also be an API ad (not Admarkt) */
+        max(IF(hits.customDimensions.index = 34 AND hits.customDimensions.value LIKE 'ViaPartner%%', 1, 0)) AS API_AD,
+        max(IF(hits.type IN ('PAGE', 'APPVIEW') AND (hits.customDimensions.index = 16 AND hits.customDimensions.value LIKE '%%/SEARCH/ZERO%%'), 1, 0)) AS ZSRP,
+
+        max(IF(hits.customDimensions.index = 2  AND hits.customDimensions.value = '91', 1, 0)) AS CAR,
+        max(IF(hits.customDimensions.index = 2  AND hits.customDimensions.value <> '91', 1, 0)) AS NON_CAR,       
+        max(IF(hits.customDimensions.index = 2  AND hits.customDimensions.value = '167', 1, 0)) AS JOB,
+        max(IF(hits.customDimensions.index = 2  AND hits.customDimensions.value <> '167', 1, 0)) AS NON_JOB,                 
+
+        max(IF(hits.type = 'EVENT' AND hits.eventInfo.eventAction IN ('RefineBrowse',
+                                                                      'RefineLocation',
+                                                                      'RefineSearch',
+                                                                      'RefineSearchAttributes',
+                                                                      'RefineSearchDisplaySince',
+                                                                      'RefineSearchL1',
+                                                                      'RefineSearchL2',
+                                                                      'RefineSearchLocation',
+                                                                      'RefineSearchRadius',
+                                                                      'RefineSearchTitleAndDescription',
+                                                                      'RefineSearchZipcode',
+                                                                      'RefineSuggestionAttribute',
+                                                                      'RefineSuggestionAttributeSelected',
+                                                                      'RefineSuggestionCategory',
+                                                                      'RefineSuggestionCategorySelected'
+                                                                      ), 1, 0))   AS Filter         
+        
+    FROM 
+        TABLE_DATE_RANGE([82421188.ga_sessions_] ,TIMESTAMP('2017-11-22'),TIMESTAMP('2017-11-24'))  /*Update this line, query 2 OR 3 days of data once would give better performance*/
+    WHERE
+      /*hits.appInfo.id IS NOT NULL AND device.operatingSystem IN ('iOS','Android')*/  /*All Apps*/
+      /*hits.appInfo.id IS NOT NULL AND device.operatingSystem = 'iOS'*/               /*iOS*/
+        hits.appInfo.id IS NOT NULL AND device.operatingSystem = 'Android'             /*Android*/
+      /*hits.appInfo.id IS NULL*/                                                      /*Web*/      
+
+    AND 
+        totals.visits IS NOT NULL
+    GROUP BY 
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
+)
+GROUP BY 
+    1, 2, 3, 4, 5
+HAVING 
+    updated_version != 'not_updated'
