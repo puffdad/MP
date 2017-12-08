@@ -1,0 +1,20 @@
+SELECT 
+
+abgroup,
+SRP_Search,
+SRP_Browse,
+L1Page,
+VIP,
+VIP_Admarkt,
+VIP_Regular,
+URL,
+Lead_w_url,
+Lead,
+View,
+Time_on_site,
+Homepage
+
+FROM [ecg-nl:82421188.AUR3848_HP_V]
+
+WHERE abgroup in ('a','b')
+and view>0
