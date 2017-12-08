@@ -1,0 +1,58 @@
+SET mapreduce.job.queuename=root.mp-hadoop;
+
+set hive.exec.dynamic.partition=true;
+set hive.exec.dynamic.partition.mode=nonstrict;
+set hive.mapjoin.smalltable.filesize=100000000;
+set hive.exec.parallel=true;
+set mapreduce.map.memory.mb=16384;
+set mapreduce.map.java.opts=-Xmx14200m -Djava.net.preferIPv4Stack=true;
+set mapreduce.reduce.memory.mb=16384;
+set mapreduce.reduce.java.opts=-Xmx14200m -Djava.net.preferIPv4Stack=true;
+set hive.exec.compress.intermediate=true;
+set hive.exec.compress.output=true;
+set mapreduce.output.fileoutputformat.compress=true;
+set mapreduce.output.fileoutputformat.compress.type=BLOCK;
+set mapreduce.output.fileoutputformat.compress.codec=org.apache.hadoop.io.compress.SnappyCodec;
+set mapreduce.map.output.compress=true;
+set mapreduce.map.output.compress.codec=org.apache.hadoop.io.compress.SnappyCodec;
+set avro.output.codec=snappy;
+set parquet.compression=snappy;
+
+create table cyeh.aur3848 as
+
+SELECT 
+      dt
+    , client
+    , channel    
+    , case 
+           when tags like '%aur3848-hp_a%' then 'a'
+           when tags like '%aur3848-hp_b%' then 'b'
+           else 'none' end abgroup_hp
+    , case 
+           when tags like '%aur3848-tp_a%' then 'a'
+           when tags like '%aur3848-tp_b%' then 'b'
+           else 'none' end abgroup_tp           
+    , SUM(IF(OutputStage = 'incoming' AND EventType = 'FOUND', 1, 0)) AS Found_count
+    , SUM(IF(OutputStage = 'incoming' AND EventType = 'IMPRESSION', 1, 0)) AS Impressions_count
+    , SUM(IF(OutputStage = 'incoming' AND EventType = 'CLICK', 1, 0)) AS Clicks_count
+    , SUM(IF(OutputStage = 'incoming' AND EventType = 'URL_CLICK', 1, 0)) AS ClickOuts_count
+    , SUM(IF(OutputStage = 'incoming' AND EventType = 'CLICK', cpc, 0)) / 100 AS Revenue
+
+FROM icas_mp_cfp.cfp2logs_view cfptest 
+       
+where dt = '2017-11-22'
+  AND OutputStage = 'incoming'
+          
+GROUP BY  
+      dt
+    , client
+    , channel  
+    , case 
+           when tags like '%aur3848-hp_a%' then 'a'
+           when tags like '%aur3848-hp_b%' then 'b'
+           else 'none' end
+    , case 
+           when tags like '%aur3848-tp_a%' then 'a'
+           when tags like '%aur3848-tp_b%' then 'b'
+           else 'none' end
+;
