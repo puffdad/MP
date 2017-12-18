@@ -1,0 +1,84 @@
+SELECT 
+  date,
+  OS,
+  device_type,  
+  abgroup,
+  is_app,
+  
+//VISITS FUNNEL
+  EXACT_COUNT_DISTINCT(fullVisitorId) AS unique_visitors,
+  sum(if(View > 0 , 1, 0)) AS total_visits,
+  sum(if(View = 1 , 1, 0)) AS total_bounce_visits,
+  sum(if(View > 1 , 1, 0)) AS total_visits_no_bounce,
+
+//LR
+  sum(case WHEN View > 0 THEN SRP else 0 end) AS total_SRP_views,
+  sum(case WHEN View > 0 THEN SRP_Search else 0 end) AS total_SRP_search,
+  sum(case WHEN View > 0 THEN SRP_Browse else 0 end) AS total_SRP_browse,
+  sum(case WHEN View > 0 THEN L1Page else 0 end) AS total_L1Page,
+  
+//VIP
+  sum(case WHEN View > 0 THEN VIP else 0 end) AS total_VIP_views,
+  sum(case WHEN View > 0 THEN VIP_Admarkt else 0 end) AS total_VIP_Admarkt, 
+  sum(case WHEN View > 0 THEN VIP_Regular else 0 end) AS total_VIP_Regular, 
+  sum(case WHEN View > 0 THEN VIP_Admarkt_CAR else 0 end) AS total_VIP_Admarkt_CAR, 
+  sum(case WHEN View > 0 THEN VIP_Regular_CAR else 0 end) AS total_VIP_Regular_CAR,    
+  sum(case WHEN View > 0 THEN VIP_Admarkt_NON_CAR else 0 end) AS total_VIP_Admarkt_NON_CAR, 
+  sum(case WHEN View > 0 THEN VIP_Regular_NON_CAR else 0 end) AS total_VIP_Regular_NON_CAR,     
+
+//Clickout
+  sum(case WHEN View > 0 THEN URL else 0 end) AS total_URL,
+  sum(case WHEN View > 0 THEN URL_VIP else 0 end) AS total_URL_VIP, 
+  sum(case WHEN View > 0 THEN URL_VipDescription else 0 end) AS total_URL_VipDescription,   
+  sum(case WHEN View > 0 THEN URL_LR else 0 end) AS total_URL_LR, 
+  sum(case WHEN View > 0 THEN URL_SOI else 0 end) AS total_URL_SOI,
+  sum(case WHEN View > 0 THEN URL_HP else 0 end) AS total_URL_HP,  
+
+//LEAD
+  sum(case WHEN View > 0 THEN Lead_w_url else 0 end) AS total_lead_w_url,
+  sum(case WHEN View > 0 THEN Lead else 0 end) AS total_lead,
+  sum(case WHEN View > 0 THEN ASQ else 0 end) AS total_ASQ,
+  sum(case WHEN View > 0 THEN BID else 0 end) AS total_BID,
+  sum(case WHEN View > 0 THEN CHAT else 0 end) AS total_CHAT,
+  sum(case WHEN View > 0 THEN PhoneCall else 0 end) AS total_PhoneCall,
+  sum(case WHEN View > 0 THEN SMS else 0 end) AS total_SMS,
+  sum(case WHEN View > 0 THEN ASQ_Admarkt else 0 end) AS total_ASQ_Admarkt,
+  sum(case WHEN View > 0 THEN BID_Admarkt else 0 end) AS total_BID_Admarkt,
+  sum(case WHEN View > 0 THEN CHAT_Admarkt else 0 end) AS total_CHAT_Admarkt,
+  sum(case WHEN View > 0 THEN PhoneCall_Admarkt else 0 end) AS total_PhoneCall_Admarkt,
+  sum(case WHEN View > 0 THEN SMS_Admarkt else 0 end) AS total_SMS_Admarkt,
+  sum(case WHEN View > 0 THEN ASQ_Regular else 0 end) AS total_ASQ_Regular,
+  sum(case WHEN View > 0 THEN BID_Regular else 0 end) AS total_BID_Regular,
+  sum(case WHEN View > 0 THEN CHAT_Regular else 0 end) AS total_CHAT_Regular,
+  sum(case WHEN View > 0 THEN PhoneCall_Regular else 0 end) AS total_PhoneCall_Regular,
+  sum(case WHEN View > 0 THEN SMS_Regular else 0 end) AS total_SMS_Regular,
+  sum(case WHEN View > 0 THEN ASQ_CAR else 0 end) AS ASQ_CAR,
+  sum(case WHEN View > 0 THEN BID_CAR else 0 end) AS BID_CAR,
+  sum(case WHEN View > 0 THEN PhoneCall_CAR else 0 end) AS PhoneCall_CAR,  
+
+//Filter
+  sum(case WHEN View > 0 THEN Filter else 0 end) AS Filter,
+  sum(if(Filter > 0, 1, 0)) AS Filter_Visit,
+
+//Other
+  sum(case WHEN View > 0 THEN View else 0 end) AS total_view, 
+  sum(case WHEN View > 0 THEN Time_on_site else 0 end) AS total_time_on_site,
+  sum(case WHEN View > 0 THEN Homepage else 0 end) AS total_Homepage,
+  
+//Cars
+  sum(case WHEN View > 0 THEN VIP_CAR else 0 end) AS VIP_CAR,
+  sum(case WHEN View > 0 THEN VIP_CAR_NONE else 0 end) AS VIP_CAR_NONE,
+  sum(case WHEN View > 0 THEN VIP_CAR_BASIC else 0 end) AS VIP_CAR_BASIC,
+  sum(case WHEN View > 0 THEN VIP_CAR_PLUS else 0 end) AS VIP_CAR_PLUS,
+  sum(case WHEN View > 0 THEN VIP_CAR_PREMIUM else 0 end) AS VIP_CAR_PREMIUM,
+  sum(case WHEN View > 0 THEN ASQ_CAR_NONE + BID_CAR_NONE + CHAT_CAR_NONE + PhoneCall_CAR_NONE + SMS_CAR_NONE + ASQ_CAR_BASIC + BID_CAR_BASIC + CHAT_CAR_BASIC + PhoneCall_CAR_BASIC + SMS_CAR_BASIC + ASQ_CAR_PLUS + BID_CAR_PLUS + CHAT_CAR_PLUS + PhoneCall_CAR_PLUS + SMS_CAR_PLUS + ASQ_CAR_PREMIUM + BID_CAR_PREMIUM + CHAT_CAR_PREMIUM + PhoneCall_CAR_PREMIUM + SMS_CAR_PREMIUM else 0 end) AS LEAD_CAR,
+  sum(case WHEN View > 0 THEN ASQ_CAR_NONE + BID_CAR_NONE + CHAT_CAR_NONE + PhoneCall_CAR_NONE + SMS_CAR_NONE else 0 end) AS LEAD_CAR_NONE,
+  sum(case WHEN View > 0 THEN ASQ_CAR_BASIC + BID_CAR_BASIC + CHAT_CAR_BASIC + PhoneCall_CAR_BASIC + SMS_CAR_BASIC else 0 end) AS LEAD_CAR_BASIC,
+  sum(case WHEN View > 0 THEN ASQ_CAR_PLUS + BID_CAR_PLUS + CHAT_CAR_PLUS + PhoneCall_CAR_PLUS + SMS_CAR_PLUS else 0 end) AS LEAD_CAR_PLUS,
+  sum(case WHEN View > 0 THEN ASQ_CAR_PREMIUM + BID_CAR_PREMIUM + CHAT_CAR_PREMIUM + PhoneCall_CAR_PREMIUM + SMS_CAR_PREMIUM else 0 end) AS LEAD_CAR_PREMIUM
+   
+from (
+
+SELECT * FROM [ecg-nl:82421188.AUR4195_V])
+GROUP BY 
+    1, 2, 3, 4, 5
