@@ -28,5 +28,5 @@ Homepage
 
 FROM [ecg-nl:82421188.AUR4195_V]
 
-WHERE abgroup in ('a','b','C')
+WHERE abgroup in ('a','b','c')
 and view>0
