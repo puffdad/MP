@@ -3,6 +3,7 @@ SELECT
   OS,
   device_type,  
   abgroup,
+  is_app,  
   
 //VISITS FUNNEL
   EXACT_COUNT_DISTINCT(fullVisitorId) AS unique_visitors,
@@ -69,4 +70,4 @@ from (
 
 SELECT * FROM [ecg-nl:82421188.AUR3848_HP_V])
 GROUP BY 
-    1, 2, 3, 4
+    1, 2, 3, 4, 5
