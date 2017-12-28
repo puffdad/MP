@@ -7,8 +7,11 @@ SELECT   /*visit level*/
 
 
   CASE                                                /*update ticket number AND groups IN your experiments*/
-     WHEN max(group) LIKE '%%aur3848-hp_a%%' THEN 'a'
-     WHEN max(group) LIKE '%%aur3848-hp_b%%' THEN 'b'    
+     WHEN max(group) LIKE '%aur4231\\_a%' or max(group) LIKE '%AUR4231.A%' THEN 'a'
+     WHEN max(group) LIKE '%aur4231\\_b%' or max(group) LIKE '%AUR4231.B%' THEN 'b'
+     WHEN max(group) LIKE '%aur4231\\_c%' or max(group) LIKE '%AUR4231.C%' THEN 'c'
+     WHEN max(group) LIKE '%aur4231\\_d%' or max(group) LIKE '%AUR4231.D%' THEN 'd'
+     WHEN max(group) LIKE '%aur4231\\_e%' or max(group) LIKE '%AUR4231.E%' THEN 'e' 
      ELSE 'NONE'
   END abgroup,
 
