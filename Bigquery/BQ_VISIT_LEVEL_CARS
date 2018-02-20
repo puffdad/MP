@@ -5,13 +5,9 @@ SELECT   /*visit level*/
   Time_on_site,
   device_type,
 
-
   CASE                                                /*update ticket number AND groups IN your experiments*/
-     WHEN max(group) LIKE '%aur4231\\_a%' or max(group) LIKE '%AUR4231.A%' THEN 'a'
-     WHEN max(group) LIKE '%aur4231\\_b%' or max(group) LIKE '%AUR4231.B%' THEN 'b'
-     WHEN max(group) LIKE '%aur4231\\_c%' or max(group) LIKE '%AUR4231.C%' THEN 'c'
-     WHEN max(group) LIKE '%aur4231\\_d%' or max(group) LIKE '%AUR4231.D%' THEN 'd'
-     WHEN max(group) LIKE '%aur4231\\_e%' or max(group) LIKE '%AUR4231.E%' THEN 'e'
+     WHEN max(group) LIKE '%aur4853\\_a%' or max(group) LIKE '%AUR4853.A%' THEN 'a'
+     WHEN max(group) LIKE '%aur4853\\_b%' or max(group) LIKE '%AUR4853.B%' THEN 'b'
      ELSE 'NONE'
   END abgroup,
 
@@ -56,10 +52,6 @@ SELECT   /*visit level*/
   sum(if(VIP > 0 AND Regular > 0 AND CAR > 0, 1, 0)) AS VIP_Regular_CAR,  
   sum(if(VIP > 0 AND Admarkt > 0 AND NON_CAR > 0, 1, 0)) AS VIP_Admarkt_NON_CAR,
   sum(if(VIP > 0 AND Regular > 0 AND NON_CAR > 0, 1, 0)) AS VIP_Regular_NON_CAR,
-  sum(if(VIP > 0 AND Admarkt > 0 AND JOB > 0, 1, 0)) AS VIP_Admarkt_JOB,
-  sum(if(VIP > 0 AND Regular > 0 AND JOB > 0, 1, 0)) AS VIP_Regular_JOB,  
-  sum(if(VIP > 0 AND Admarkt > 0 AND NON_JOB > 0, 1, 0)) AS VIP_Admarkt_NON_JOB,
-  sum(if(VIP > 0 AND Regular > 0 AND NON_JOB > 0, 1, 0)) AS VIP_Regular_NON_JOB, 
 
   sum(URL) AS URL,
   sum(URL_VIP) AS URL_VIP,
@@ -115,17 +107,8 @@ SELECT   /*visit level*/
   sum(if(PhoneCall > 0 AND CAR > 0 AND car_package = 'PREMIUM', 1, 0)) AS PhoneCall_CAR_PREMIUM,
   sum(if(SMS > 0 AND CAR > 0 AND car_package = 'PREMIUM', 1, 0)) AS SMS_CAR_PREMIUM,        
 
-
-  sum(if(ASQ > 0 AND JOB > 0, 1, 0)) AS ASQ_JOB,
-  sum(if(BID > 0 AND JOB > 0, 1, 0)) AS BID_JOB,
-  sum(if(CHAT > 0 AND JOB > 0, 1, 0)) AS CHAT_JOB,
-  sum(if(PhoneCall > 0 AND JOB > 0, 1, 0)) AS PhoneCall_JOB,
-  sum(if(SMS > 0 AND JOB > 0, 1, 0)) AS SMS_JOB,
-
   sum(Filter) AS Filter,
-  sum(Homepage) AS Homepage,
-  sum(API_AD) AS api_ad,
-  sum(ZSRP) AS ZSRP
+  sum(Homepage) AS Homepage
 
 
 FROM (
@@ -176,13 +159,9 @@ FROM (
           
         max(IF(hits.customDimensions.index = 30 AND hits.customDimensions.value LIKE 'a%%', 1, 0)) AS Admarkt, 
         max(IF(hits.customDimensions.index = 30 AND hits.customDimensions.value LIKE 'm%%', 1, 0)) AS Regular,  /*This can also be an API ad (not Admarkt) */
-        max(IF(hits.customDimensions.index = 34 AND hits.customDimensions.value LIKE 'ViaPartner%%', 1, 0)) AS API_AD,
-        max(IF(hits.type IN ('PAGE', 'APPVIEW') AND (hits.customDimensions.index = 16 AND hits.customDimensions.value LIKE '%%/SEARCH/ZERO%%'), 1, 0)) AS ZSRP,
 
         max(IF(hits.customDimensions.index = 2  AND hits.customDimensions.value = '91', 1, 0)) AS CAR,
-        max(IF(hits.customDimensions.index = 2  AND hits.customDimensions.value <> '91', 1, 0)) AS NON_CAR,       
-        max(IF(hits.customDimensions.index = 2  AND hits.customDimensions.value = '167', 1, 0)) AS JOB,
-        max(IF(hits.customDimensions.index = 2  AND hits.customDimensions.value <> '167', 1, 0)) AS NON_JOB,                 
+        max(IF(hits.customDimensions.index = 2  AND hits.customDimensions.value <> '91', 1, 0)) AS NON_CAR,                       
 
         max(IF(hits.type = 'EVENT' AND hits.eventInfo.eventAction IN ( 'refine_selected',
                                                                        'RefineBrowse',
@@ -215,12 +194,12 @@ FROM (
                                                                        ), 1, 0))   AS Filter         
         
     FROM 
-        TABLE_DATE_RANGE([82421188.ga_sessions_], TIMESTAMP('2017-12-11'), TIMESTAMP('2017-12-13'))  /*Update this line, query 2 OR 3 days of data once would give better performance*/
+        TABLE_DATE_RANGE([82421188.ga_sessions_], TIMESTAMP('2018-02-08'), TIMESTAMP('2018-02-14'))  /*Update this line, query 2 OR 3 days of data once would give better performance*/
     WHERE
       /*hits.appInfo.id IS NOT NULL AND device.operatingSystem IN ('iOS','Android')*/  /*All Apps*/
-        hits.appInfo.id IS NOT NULL AND device.operatingSystem = 'iOS'                 /*iOS*/
+      /*hits.appInfo.id IS NOT NULL AND device.operatingSystem = 'iOS'*/               /*iOS*/
       /*hits.appInfo.id IS NOT NULL AND device.operatingSystem = 'Android'*/           /*Android*/
-      /*hits.appInfo.id IS NULL*/                                                      /*Web*/      
+        hits.appInfo.id IS NULL                                                        /*Web*/      
 
     AND 
         totals.visits IS NOT NULL
